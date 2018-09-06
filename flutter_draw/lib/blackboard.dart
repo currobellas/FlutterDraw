@@ -137,8 +137,8 @@ class _BlackboardState extends State<Blackboard> {
     _hFirma = _wExterno;//_hExterno * 0.6;
     _wFirma = _wExterno;
 
-    _offsetX = (_w - _wExterno) / 2;
-    _offsetY = (_h - _hExterno) / 2;
+    _offsetX = 0.0;//(_w - _wExterno) / 2;
+    _offsetY = 0.0;//(_h - _hExterno) / 2;
 
     print(_h* MediaQuery.of(context).devicePixelRatio);
     //print('estado'+widget?.aImagen?.imagen?.toString());
@@ -154,25 +154,20 @@ class _BlackboardState extends State<Blackboard> {
       onPanEnd: _panEnd,
       onPanUpdate: _panUpdate,
       child: Container(
-        color: Color.fromARGB(240, 250, 250, 200),
-        height: _hExterno,
+        color: Colors.black,
+        height: _h,
         //H ext
-        width: _wExterno,
+        width: _w,
         //W ext Es el máximo de w que se puede poner el el iphone 10,
-        child: new Container(
-          color: Color.fromARGB(240, 200, 200, 200),
-          height: _hFirma,
-          width: _wFirma,
-          child: new CustomPaint(
-            foregroundPainter: new MyPainter(
-              lineColor: Color.fromARGB(240, 0, 0, 100),
-              completeColor: Colors.blueAccent,
-              aImg: widget.aImagen,
-              width: 4.0,
-              //Grosor de la línea
-              anchoZonaFirma: (_wFirma* (Theme.of(context).platform == TargetPlatform.iOS?MediaQuery.of(context).devicePixelRatio:1)).toInt() ,
-              paths: paths,
-            ),
+        child: new CustomPaint(
+          foregroundPainter: new MyPainter(
+            lineColor: Colors.white,
+            completeColor: Colors.red,
+            aImg: widget.aImagen,
+            width: 4.0,
+            //Grosor de la línea
+            anchoZonaFirma: (_wFirma* (Theme.of(context).platform == TargetPlatform.iOS?MediaQuery.of(context).devicePixelRatio:1)).toInt() ,
+            paths: paths,
           ),
         ),
       ),
