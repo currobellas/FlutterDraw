@@ -65,9 +65,16 @@ class _BlackboardState extends State<Blackboard> {
     setState(() {
       // _tapInProgress = false;
 
+
+      print(details.globalPosition.toString());
+
+      var object = this.contexto.findRenderObject();
+      var translation = object?.getTransformTo(null)?.getTranslation();
+      var size = object?.semanticBounds?.size;
+
       points = [
-        new Offset(details.globalPosition.dx - _offsetX,
-            details.globalPosition.dy - _offsetY)
+        new Offset(details.globalPosition.dx ,
+            details.globalPosition.dy - translation.y)
       ]; //details.globalPosition]; //Si el usuario toca solo para un punto
       paths.add(points);
     });
@@ -87,9 +94,11 @@ class _BlackboardState extends State<Blackboard> {
       // print('v start ${details.toString()}');
       //Como aquí creamos un nuevo points, ya no es necesario tener en cuenta el fin, pues el fin de un camino se establece
       //al empezar otro
+      var object = this.contexto.findRenderObject();
+      var translation = object?.getTransformTo(null)?.getTranslation();
       points = [
-        new Offset(details.globalPosition.dx - _offsetX,
-            details.globalPosition.dy - _offsetY)
+        new Offset(details.globalPosition.dx  ,
+            details.globalPosition.dy - translation.y)
       ];
       paths.add(points); // Añadimos aquí para que la pantalla se actualice a
       // a medida que pinta. Si lo metemos en end, solo pinta al levantar el dedo
@@ -103,8 +112,10 @@ class _BlackboardState extends State<Blackboard> {
 //      RenderBox getBox = context.findRenderObject();
 //      var local = getBox.globalToLocal(details.globalPosition);
 //      print(local.dx.toString() + "|" + local.dy.toString());
-      points.add(new Offset(details.globalPosition.dx - _offsetX,
-          details.globalPosition.dy - _offsetY));
+      var object = this.contexto.findRenderObject();
+      var translation = object?.getTransformTo(null)?.getTranslation();
+      points.add(new Offset(details.globalPosition.dx ,
+          details.globalPosition.dy - translation.y));
     });
   }
 
@@ -124,9 +135,9 @@ class _BlackboardState extends State<Blackboard> {
   Widget build(BuildContext context) {
     contexto = context;
 
-//    var object = this.contexto.findRenderObject();
-//    var translation = object?.getTransformTo(null)?.getTranslation();
-    //print(context.findRenderObject().describeApproximatePaintClip(context.findRenderObject()).top);
+ //   var object = this.contexto.findRenderObject();
+ //   var translation = object?.getTransformTo(null)?.getTranslation();
+ //   print(context.findRenderObject().describeApproximatePaintClip(context.findRenderObject()).top);
     _w = MediaQuery.of(context).size.width;
 
     _h = MediaQuery.of(context).size.height;
