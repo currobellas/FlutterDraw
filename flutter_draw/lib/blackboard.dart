@@ -1,160 +1,107 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:ui' as ui;
-
 import 'package:flutter/rendering.dart';
 
-enum Answer { ACEPTAR, CANCELAR }
-
-
-// Clase parapoder obtener una imagen de un
-//objeto distinto (una especie de paso por referencia)
-class AccesoAImagen{
+// Class to get an imega from other object
+// Used like a reference parameter
+class ImageAccess {
   Image imagen;
 }
 
 class Blackboard extends StatefulWidget {
-//  String prueba = 'hola';
-  // Image imagenFinal = null;
-  AccesoAImagen aImagen = new AccesoAImagen();
+  // The image can be accessed by this property
+  ImageAccess aImagen = new ImageAccess();
+
   @override
   _BlackboardState createState() => new _BlackboardState();
 }
 
 class _BlackboardState extends State<Blackboard> {
-
-  List<Offset> points;
-
-  List<List<Offset>> paths = new List<List<Offset>>();
+  List<Offset> points; //List of points in one Tap or Pan
+  List<List<Offset>> paths =
+      new List<List<Offset>>(); // Every point or path is kept here
 
   /*
-  *  Funcionamiento de los taps y pans:
+  *  Tap and Pan behaviour:
   *
-  *  Al tocar la pantalla se lanza tapdown
-  *  Si se suelta se lanza tapup y luego tap
-  *  si no se suelta y se empieza  a arrastrar se lanza tapcancel, panstart y panupdate
-  *  al soltar tras los pan se lanza panend
-  *
+  *  Touch the screen throws tapDown.
+  *  If up the finger tapUp and then onTap,
+  *   if not and begin drag throws tapCancel, panStart and panUpdate
+  *    and when stop drag and up the finger throws panEnd
   *
   * */
 
+  // Not used
   void _tapDown(TapDownDetails details) {
-    // TODO eliminar si no lo usamos
-    print('tapdown');
-    setState(() {
-      //  _tapInProgress = true;
-      print(details.globalPosition.toString());
-
-      var object = this.contexto.findRenderObject();
-      var translation = object?.getTransformTo(null)?.getTranslation();
-      var size = object?.semanticBounds?.size;
-
-      if (translation != null && size != null) {
-        print(Rect.fromLTWH(
-            translation.x, translation.y, size.width, size.height));
-      } else {
-        print('nada');
-      }
-    });
+    print('tapDown');
   }
 
+  // User tap one point
   void _tapUp(TapUpDetails details) {
-    print('tapup');
+    print('tapUp');
     setState(() {
-      // _tapInProgress = false;
-
-
-      print(details.globalPosition.toString());
-
       var object = this.contexto.findRenderObject();
       var translation = object?.getTransformTo(null)?.getTranslation();
-      var size = object?.semanticBounds?.size;
+      // translation.y have the offset from the top of the screen to the "canvas".
 
       points = [
-        new Offset(details.globalPosition.dx ,
+        new Offset(details.globalPosition.dx,
             details.globalPosition.dy - translation.y)
-      ]; //details.globalPosition]; //Si el usuario toca solo para un punto
+      ];
       paths.add(points);
     });
   }
 
+  // Not used
   void _tapCancel() {
-    // TODO eliminar si no lo usamos
-    print('tapcancel');
-    setState(() {
-      //    _tapInProgress = false;
-    });
+    print('tapCancel');
   }
 
+  // User touch and drag over the screen
   void _panStart(DragStartDetails details) {
-    print('panstart');
+    print('panStart');
     setState(() {
-      // print('v start ${details.toString()}');
-      //Como aquí creamos un nuevo points, ya no es necesario tener en cuenta el fin, pues el fin de un camino se establece
-      //al empezar otro
       var object = this.contexto.findRenderObject();
       var translation = object?.getTransformTo(null)?.getTranslation();
       points = [
-        new Offset(details.globalPosition.dx  ,
+        new Offset(details.globalPosition.dx,
             details.globalPosition.dy - translation.y)
       ];
-      paths.add(points); // Añadimos aquí para que la pantalla se actualice a
-      // a medida que pinta. Si lo metemos en end, solo pinta al levantar el dedo
+      paths.add(points);
+      // Add here to refresh the screen. If paths.add is only in panEnd
+      // only update the screen when finger is up
     });
   }
 
+  // User drag over screen
   void _panUpdate(DragUpdateDetails details) {
-    //print('pan');
+    // print('panUpdate'); //Lot of prints :-/
     setState(() {
-//      print('v update ${details.globalPosition}');
-//      RenderBox getBox = context.findRenderObject();
-//      var local = getBox.globalToLocal(details.globalPosition);
-//      print(local.dx.toString() + "|" + local.dy.toString());
       var object = this.contexto.findRenderObject();
       var translation = object?.getTransformTo(null)?.getTranslation();
-      points.add(new Offset(details.globalPosition.dx ,
+      points.add(new Offset(details.globalPosition.dx,
           details.globalPosition.dy - translation.y));
     });
   }
 
+  // Not use because in panStart and tapUp initialize a new path of points
   void _panEnd(DragEndDetails details) {
-    // TODO eliminar si no lo usamos
-    setState(() {
-      print('panend ${details.toString()}');
-    });
+    print('panEnd');
   }
 
-  double _w, _h, _hExterno, _wExterno, _hFirma, _wFirma, _offsetX, _offsetY;
+  double _w, _h;
   BuildContext contexto;
-
-
 
   @override
   Widget build(BuildContext context) {
     contexto = context;
-
- //   var object = this.contexto.findRenderObject();
- //   var translation = object?.getTransformTo(null)?.getTranslation();
- //   print(context.findRenderObject().describeApproximatePaintClip(context.findRenderObject()).top);
     _w = MediaQuery.of(context).size.width;
-
     _h = MediaQuery.of(context).size.height;
 
-    _hExterno = _h * 0.7; //H ext
-    _wExterno = _w * 0.79;
-    //Hacemos al final la zona cuadrada
-    _hFirma = _wExterno;//_hExterno * 0.6;
-    _wFirma = _wExterno;
-
-    _offsetX = 0.0;//(_w - _wExterno) / 2;
-    _offsetY = 0.0;//(_h - _hExterno) / 2;
-
-    print(_h* MediaQuery.of(context).devicePixelRatio);
-    //print('estado'+widget?.aImagen?.imagen?.toString());
     return GestureDetector(
-      behavior: HitTestBehavior.translucent,
+      //  behavior: HitTestBehavior.translucent,
       onTap: () {
         print('tap');
       },
@@ -167,17 +114,14 @@ class _BlackboardState extends State<Blackboard> {
       child: Container(
         color: Colors.black,
         height: _h,
-        //H ext
         width: _w,
-        //W ext Es el máximo de w que se puede poner el el iphone 10,
         child: new CustomPaint(
           foregroundPainter: new MyPainter(
             lineColor: Colors.white,
-            completeColor: Colors.red,
             aImg: widget.aImagen,
             width: 4.0,
-            //Grosor de la línea
-            anchoZonaFirma: (_wFirma* (Theme.of(context).platform == TargetPlatform.iOS?MediaQuery.of(context).devicePixelRatio:1)).toInt() ,
+            canvasWidth: _w.toInt(),
+            canvasHeight: _h.toInt(),
             paths: paths,
           ),
         ),
@@ -187,28 +131,32 @@ class _BlackboardState extends State<Blackboard> {
 }
 
 class MyPainter extends CustomPainter {
-  Color lineColor;
-  Color completeColor;
-  Image img;
-  AccesoAImagen aImg;
-  double width; //grosor lapiz
-  int anchoZonaFirma; //en pixels
-  List<List<Offset>> paths;
+  Color lineColor; //Line color
+
+  ImageAccess aImg; // Image in png
+  double width; // Pen thickness
+  int canvasWidth;
+  int canvasHeight;
+  List<List<Offset>> paths; // paths to draw
 
   MyPainter(
-      {this.lineColor, this.completeColor, this.aImg, this.width, this.paths, this.anchoZonaFirma});
+      {this.lineColor,
+      this.aImg,
+      this.width,
+      this.paths,
+      this.canvasWidth,
+      this.canvasHeight});
 
-  Future<void> _capturePng(imagen) async {
-    ByteData byteData = await imagen.toByteData(format: ui.ImageByteFormat.png);
+  Future<void> _capturePng(ui.Image img) async {
+    ByteData byteData = await img.toByteData(format: ui.ImageByteFormat.png);
     Uint8List pngBytes = byteData.buffer.asUint8List();
     aImg.imagen = new Image.memory(new Uint8List.view(pngBytes.buffer));
-    print('future'+aImg.imagen.toString());
+
   }
 
   @override
   void paint(Canvas canvasFinal, Size size) {
-
-    final recorder = new ui.PictureRecorder(); //está en dart:ui
+    final recorder = new ui.PictureRecorder(); // dart:ui
     final canvas = new Canvas(recorder);
     if (paths == null || paths.isEmpty) return;
     for (List<Offset> points in paths) {
@@ -237,30 +185,11 @@ class MyPainter extends CustomPainter {
         );
       }
     }
+    // Storing image
     ui.Picture picture = recorder.endRecording();
-    ui.Image imagen = picture.toImage(anchoZonaFirma,anchoZonaFirma);
-    // print('picture $picture');
-    // print('img $img');
-    //  final pngBytes = await img.toByteData(format: new ui.EncodingFormat.png());
+    ui.Image imagen = picture.toImage(canvasWidth, canvasWidth);
     _capturePng(imagen);
     canvasFinal.drawPicture(picture);
-
-//    Paint line = new Paint()
-//      ..color = lineColor
-//      ..strokeCap = StrokeCap.round
-//      ..style = PaintingStyle.stroke
-//      ..strokeWidth = width;
-//    Paint complete = new Paint()
-//      ..color = completeColor
-//      ..strokeCap = StrokeCap.round
-//      ..style = PaintingStyle.stroke
-//      ..strokeWidth = width;
-//    Offset center = new Offset(size.width / 2, size.height / 2);
-//    double radius = min(size.width / 2, size.height / 2);
-//    canvas.drawCircle(center, radius, line);
-//    double arcAngle = 2 * pi * (completePercent / 100);
-//    canvas.drawArc(new Rect.fromCircle(center: center, radius: radius), -pi / 2,
-//        arcAngle, false, complete);
   }
 
   @override
